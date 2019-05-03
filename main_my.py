@@ -26,7 +26,7 @@ class Program(QWidget):
     # ex > -1 and ex < 4 and ey > -1 and ey < 4 and map[ex + sx][ey + sy] == 0
     def Turn(self, ex, ey, sx, sy):  # движение на одну клетку
         if map[ex][ey] > 0:
-            while ex > -1 and ex < 4 and ey > -1 and ey < 4 and map[ex + sx][ey + sy] == 0:
+            while ex > 0 and ex < 4 and ey > 0 and ey < 4 and map[ex + sx][ey + sy] == 0:
                 print(ex," ",ey)
                 map[ex + sx][ey + sy] = map[ex][ey]
                 map[ex][ey] = 0
