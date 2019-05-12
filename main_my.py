@@ -39,72 +39,92 @@ class Program(QWidget):
 
                 ex += sx
                 ey += sy
-                self.mooved = 1
+                self.moved = 1
 
     def join(self, ex, ey, sx, sy):
 
         if self.get_map(ex, ey) > 0:
             if self.get_map(ex + sx, ey + sy) == self.get_map(ex, ey):
                 self.set_map(ex + sx, ey + sy, self.get_map(ex, ey) << 1)  # сдвигаем на битовую еденицу влево
+                # self.bill += self.get_map(ex, ey) << 1
+                # print(self.bill)
                 while self.get_map(ex - sx, ey - sy) > 0:
                     # устанавливаем значение предыдущего в текущий
                     self.set_map(ex, ey, self.get_map(ex - sx, ey - sy))
                     ex -= sx
                     ey -= sy
                 self.set_map(ex, ey, 0)
-                self.mooved = 1
+                self.moved = 1
 
-    global mooved
+    global moved, Game_over, bill
+
+    def game_over(self):
+        if self.Game_over == 1:
+            return self.Game_over
+        # Game_over = 0
+        for ex in range(4):
+            for ey in range(4):
+                if self.map_get(ex, ey) == 0:
+                    return 0
+        for ex in range(4):
+            for ey in range(4):
+                if self.map_get(ex, ey) == self.get_map(ex + 1, ey) or self.map_get(ex, ey) == self.get_map(ex, ey + 1):
+                    return 0
+
+        self.Game_over = 1
+        return self.Game_over
+
 
     def clicked(self, k):
 
         global _map
         if k == -1:
             sys.stdout.write('\rleft')
-            self.mooved = 0
+            self.moved = 0
             for ey in range(4):
                 for ex in range(-1, 4):
                     self.turn(ex, ey, -1, 0)
                 for ex in range(-1, 4):
                     self.join(ex, ey, -1, 0)
-            if self.mooved == 1:
+            if self.moved == 1:
                 self.random_new_numbers()
 
         elif k == 2:
             sys.stdout.write('\rup')
-            self.mooved = 0
+            self.moved = 0
             for ex in range(4):
                 for ey in range(-1, 4):
                     self.turn(ex, ey, 0, -1)
                 for ey in range(-1, 4):
                     self.join(ex, ey, 0, -1)
-            if self.mooved == 1:
+            if self.moved == 1:
                 self.random_new_numbers()
 
         elif k == 1:
             sys.stdout.write('\rright')
-            self.mooved = 0
+            self.moved = 0
             # sys.stdout.write(str(bin(map[1][1])))
             for ey in range(4):
                 for ex in range(2, -1, -1):
                     self.turn(ex, ey, 1, 0)
                 for ex in range(2, -1, -1):
                     self.join(ex, ey, 1, 0)
-            if self.mooved == 1:
+            if self.moved == 1:
                 self.random_new_numbers()
 
         elif k == 0:
             sys.stdout.write('\rdown')
-            self.mooved = 0
+            self.moved = 0
             for ex in range(4):
                 for ey in range(2, -1, -1):
                     self.turn(ex, ey, 0, 1)
                 for ey in range(2, -1, -1):
                     self.join(ex, ey, 0, 1)
-            if self.mooved == 1:
+            if self.moved == 1:
                 self.random_new_numbers()
 
         elif k == 3:
+            self.Game_over = 0
             self.random_new_numbers()
             self.random_new_numbers()
 
@@ -129,12 +149,28 @@ class Program(QWidget):
         qp.begin(self)
         pen = QPen(QColor(colors[0]))
         qp.setPen(pen)
-        qp.setFont(QFont('Decorative', 30))
+        qp.setFont(QFont('Decorative', 26))
+        # if self.game_over() == 1:
+        #     qp.drawText(x * 2.3, x * 6, x * 2, x, Qt.AlignHCenter | Qt.AlignVCenter, "Game Over")
         for ex in range(4):
             for ey in range(4):
-                qp.fillRect(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x, QBrush(QColor(colors[len(str(bin(_map[ex][ey]))) - 2])))
-                qp.drawText(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x, Qt.AlignHCenter | Qt.AlignVCenter, str(_map[ex][ey]))
+                qp.setFont(QFont('Decorative', self.font_size(len(str(_map[ex][ey])))))  # ~30
+                qp.fillRect(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x,
+                            QBrush(QColor(colors[len(str(bin(_map[ex][ey]))) - 2])))
+                qp.drawText(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x,
+                            Qt.AlignHCenter | Qt.AlignVCenter, str(_map[ex][ey]))
         qp.end()
+
+    @staticmethod
+    def font_size(count):
+        if count < 2:
+            return 30
+        elif count < 3:
+            return 26
+        elif count < 4:
+            return 22
+        elif count < 6:
+            return 16
 
     @staticmethod
     def random_new_numbers():
