@@ -9,11 +9,12 @@ class Program(QWidget):
     def __init__(self, parent=None):
         super(Program, self).__init__(parent)
         self.setStyleSheet("background-color: white")
-
+        self.Game_over = 0
         self.init_ui()
 
     def init_ui(self):
         self.setGeometry(800, 150, 350, 500)
+        self.setWindowOpacity(0.9)
         self.show()
 
     def set_map(self, mx, my, value):
@@ -33,7 +34,6 @@ class Program(QWidget):
 
         if self.get_map(ex, ey) > 0:
             while self.get_map(ex + sx, ey + sy) == 0:
-
                 _map[ex + sx][ey + sy] = self.get_map(ex, ey)
                 _map[ex][ey] = 0
 
@@ -42,12 +42,11 @@ class Program(QWidget):
                 self.moved = 1
 
     def join(self, ex, ey, sx, sy):
-
+        global _bill
         if self.get_map(ex, ey) > 0:
             if self.get_map(ex + sx, ey + sy) == self.get_map(ex, ey):
                 self.set_map(ex + sx, ey + sy, self.get_map(ex, ey) << 1)  # сдвигаем на битовую еденицу влево
-                # self.bill += self.get_map(ex, ey) << 1
-                # print(self.bill)
+                _bill[1] += self.get_map(ex, ey) << 1  # увеличение счёта
                 while self.get_map(ex - sx, ey - sy) > 0:
                     # устанавливаем значение предыдущего в текущий
                     self.set_map(ex, ey, self.get_map(ex - sx, ey - sy))
@@ -56,27 +55,20 @@ class Program(QWidget):
                 self.set_map(ex, ey, 0)
                 self.moved = 1
 
-    global moved, Game_over, bill
+    global moved
 
     def game_over(self):
-        if self.Game_over == 1:
-            return self.Game_over
-        # Game_over = 0
         for ex in range(4):
             for ey in range(4):
-                if self.map_get(ex, ey) == 0:
+                if self.get_map(ex, ey) == 0:
                     return 0
         for ex in range(4):
             for ey in range(4):
-                if self.map_get(ex, ey) == self.get_map(ex + 1, ey) or self.map_get(ex, ey) == self.get_map(ex, ey + 1):
+                if self.get_map(ex, ey) == self.get_map(ex + 1, ey) or self.get_map(ex, ey) == self.get_map(ex, ey + 1):
                     return 0
-
-        self.Game_over = 1
-        return self.Game_over
-
+        return 1
 
     def clicked(self, k):
-
         global _map
         if k == -1:
             sys.stdout.write('\rleft')
@@ -124,7 +116,6 @@ class Program(QWidget):
                 self.random_new_numbers()
 
         elif k == 3:
-            self.Game_over = 0
             self.random_new_numbers()
             self.random_new_numbers()
 
@@ -149,16 +140,22 @@ class Program(QWidget):
         qp.begin(self)
         pen = QPen(QColor(colors[0]))
         qp.setPen(pen)
-        qp.setFont(QFont('Decorative', 26))
-        # if self.game_over() == 1:
-        #     qp.drawText(x * 2.3, x * 6, x * 2, x, Qt.AlignHCenter | Qt.AlignVCenter, "Game Over")
         for ex in range(4):
             for ey in range(4):
                 qp.setFont(QFont('Decorative', self.font_size(len(str(_map[ex][ey])))))  # ~30
-                qp.fillRect(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x,
-                            QBrush(QColor(colors[len(str(bin(_map[ex][ey]))) - 2])))
+                if self.game_over() == 0:
+                    qp.fillRect(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x,
+                                QBrush(QColor(colors[len(str(bin(_map[ex][ey]))) - 2])))
+                else:
+                    qp.fillRect(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x, QBrush(QColor(colors[12])))
                 qp.drawText(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x,
                             Qt.AlignHCenter | Qt.AlignVCenter, str(_map[ex][ey]))
+
+        qp.setFont(QFont('Decorative', self.font_size(len(str(_bill[1])))))
+        qp.drawText(x * 2.3, x * 6, x * 2, x, Qt.AlignHCenter | Qt.AlignVCenter, str(_bill[1]))
+        if self.game_over() == 1:
+            qp.drawText(x * 1.3, x * 7, x * 4, x, Qt.AlignHCenter | Qt.AlignVCenter, "Game Over")
+            qp.fillRect(x, x, x*4.6, x*4.6, QBrush(QColor(0, 0, 0, 50)))
         qp.end()
 
     @staticmethod
@@ -170,7 +167,9 @@ class Program(QWidget):
         elif count < 4:
             return 22
         elif count < 6:
-            return 16
+            return 18
+        else:
+            return 14
 
     @staticmethod
     def random_new_numbers():
@@ -191,7 +190,7 @@ colors = ['#34486a', '#f6f4f5',
           '#778046', '#757980', '#c78b89']
 x = 53
 _map = [[0 for i in range(4)] for ii in range(4)]  # частная переменная map
-
+_bill = [0, 0]
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
