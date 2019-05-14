@@ -72,6 +72,12 @@ class Program(QWidget):
                     return 0
         return 1
 
+    def you_win(self):
+        for ex in range(_size):
+            for ey in range(_size):
+                if self.get_map(ex, ey) == 2048:
+                    return 1
+
     def clicked(self, k):
         global _map
         if k == -1:
@@ -99,7 +105,6 @@ class Program(QWidget):
         elif k == 1:
             sys.stdout.write('\rright')
             self.moved = 0
-            # sys.stdout.write(str(bin(map[1][1])))
             for ey in range(_size):
                 for ex in range(2, -1, -1):
                     self.turn(ex, ey, 1, 0)
@@ -120,11 +125,25 @@ class Program(QWidget):
                 self.random_new_numbers()
 
         elif k == 3:
+            win = open("win.txt", "r", )
+            _bill[0] = int(win.read())
+            win.close()
             if self.game_over() == 1:
                 for ex in range(_size):
                     for ey in range(_size):
                         self.set_map(ex, ey, 0)
+
+                # махинации с записью в файл
+                win = open("win.txt", "w", )
+                if _bill[1] > _bill[0]:
+                    win.write(str(_bill[1]))
+                    _bill[0] = _bill[1]
+                else:
+                    win.write(str(_bill[0]))
+                win.close()
+
                 _bill[1] = 0
+
             if np.sum(_map) == 0:
                 self.random_new_numbers()
                 self.random_new_numbers()
@@ -158,14 +177,23 @@ class Program(QWidget):
                                 QBrush(QColor(colors[len(str(bin(_map[ex][ey]))) - 2])))
                 else:
                     qp.fillRect(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x, QBrush(QColor(colors[12])))
+
                 qp.drawText(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x,
                             Qt.AlignHCenter | Qt.AlignVCenter, str(_map[ex][ey]))
 
         qp.setFont(QFont('Decorative', self.font_size(len(str(_bill[1])))))
         qp.drawText(121.9, 318, 106, 53, Qt.AlignHCenter | Qt.AlignVCenter, str(_bill[1]))
-        if self.game_over() == 1:
-            qp.drawText(121.9, 318, 106, 53, Qt.AlignHCenter | Qt.AlignVCenter, "Game Over")
+        if self.game_over():
+            qp.setFont(QFont('Decorative', self.font_size(len("Game Over"))))
+            qp.drawText(110, 5, 120, 53, Qt.AlignHCenter | Qt.AlignVCenter, "Game Over")
             qp.fillRect(x, x, x*4.6, x*4.6, QBrush(QColor(0, 0, 0, 50)))
+        elif self.you_win():
+            qp.drawText(120, 5, 120, 53, Qt.AlignHCenter | Qt.AlignVCenter, "You winner!")
+        pen = QPen(QColor('#b0b5b5'))
+        qp.setPen(pen)
+        qp.setFont(QFont('Calibri', self.font_size(10)))
+        qp.drawText(121.9, 345, 106, 53, Qt.AlignHCenter | Qt.AlignVCenter, str(_bill[0]))
+        qp.drawText(2, 375, 350, 100, Qt.AlignHCenter | Qt.AlignVCenter, _rulls)
         qp.end()
 
     @staticmethod
@@ -199,9 +227,11 @@ colors = ['#34486a', '#f6f4f5',
           '#c0eb7e', '#c2e4eb', '#ffea97', '#f9c0c9',
           '#778046', '#757980', '#c78b89']
 _size = 5
-x = _size * 9  # размер сетки и отступы 13 9
+x = _size * 9  # размер сетки и отступы 4-13 5-9
 _map = [[0 for i in range(_size)] for ii in range(_size)]  # частная переменная map
 _bill = [0, 0]  # счёт рекордный и настоящий
+_rulls = "Press key '+' to start."
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
