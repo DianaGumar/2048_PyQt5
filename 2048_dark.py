@@ -1,4 +1,5 @@
 import sys
+import os.path
 import random
 import numpy as np
 from PyQt5.QtWidgets import *
@@ -14,11 +15,14 @@ class Program(QWidget):
         self.Game_over = 0
         self.init_ui()
 
+        self.result_filepath = "win.txt"
+        _bill[0] = self.get_max_score()
+
     def init_ui(self):
         # self.setGeometry(800, 150, 350, 500)
         self.setFixedSize(350, 500)
         self.setWindowTitle("PyQt5_2048")
-        self.setWindowIcon(QIcon('LOGO.png'))
+        self.setWindowIcon(QIcon('img/logo.png'))
         self.setWindowOpacity(0.8)
         self.show()
 
@@ -79,6 +83,17 @@ class Program(QWidget):
                 if self.get_map(ex, ey) == 2048:
                     return 1
 
+    def get_max_score(self):
+        if os.path.isfile(self.result_filepath):
+            with open(self.result_filepath, "r") as result_file:
+                return int(result_file.read(), 2)
+        else:
+            return 0
+
+    def set_max_score(self, max_score):
+        with open(self.result_filepath, "w") as result_file:
+            result_file.write(bin(max_score))
+
     def clicked(self, k):
         global _map
         if k == -1:
@@ -126,22 +141,16 @@ class Program(QWidget):
                 self.random_new_numbers()
 
         elif k == 3:
-            win = open("win.txt", "r", )
-            _bill[0] = int(win.read())
-            win.close()
             if self.game_over() == 1:
                 for ex in range(_size):
                     for ey in range(_size):
                         self.set_map(ex, ey, 0)
 
-                # махинации с записью в файл
-                win = open("win.txt", "w", )
                 if _bill[1] > _bill[0]:
-                    win.write(str(_bill[1]))
+                    self.set_max_score(_bill[1])
                     _bill[0] = _bill[1]
                 else:
-                    win.write(str(_bill[0]))
-                win.close()
+                    self.set_max_score(_bill[0])
 
                 _bill[1] = 0
 
