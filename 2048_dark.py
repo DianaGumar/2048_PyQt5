@@ -9,7 +9,7 @@ from PyQt5.QtCore import *
 class Program(QWidget):
     def __init__(self, parent=None):
         super(Program, self).__init__(parent)
-        self.setStyleSheet("background-color: white")
+        self.setStyleSheet("background-color: black")
 
         self.Game_over = 0
         self.init_ui()
@@ -19,7 +19,7 @@ class Program(QWidget):
         self.setFixedSize(350, 500)
         self.setWindowTitle("PyQt5_2048")
         self.setWindowIcon(QIcon('LOGO.png'))
-        #self.setWindowOpacity(0.8)
+        self.setWindowOpacity(0.8)
         self.show()
 
     def set_map(self, mx, my, value):
@@ -183,16 +183,16 @@ class Program(QWidget):
                 qp.setFont(QFont('Decorative', self.font_size(len(str(_map[ex][ey])))))  # ~30
                 if self.game_over() == 0:
                     # стандартная версия
-                    # qp.fillRect(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x,
-                    #              QBrush(QColor(colors[len(str(bin(_map[ex][ey]))) - 2])))
+                    qp.fillRect(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x,
+                                  QBrush(QColor(colors[len(str(bin(_map[ex][ey]))) - 2])))
 
                     # версия с изображениями
-                    qp.drawPixmap(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x, images[len(str(bin(_map[ex][ey]))) - 2])
+                    # qp.drawPixmap(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x, images[len(str(bin(_map[ex][ey]))) - 2])
                 else:
                     qp.fillRect(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x, QBrush(QColor(colors[12])))
 
-                # qp.drawText(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x,
-                #             Qt.AlignHCenter | Qt.AlignVCenter, str(_map[ex][ey]))
+                qp.drawText(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x,
+                             Qt.AlignHCenter | Qt.AlignVCenter, str(_map[ex][ey]))
 
         pen = QPen(QColor(colors[0]))
         qp.setPen(pen)
