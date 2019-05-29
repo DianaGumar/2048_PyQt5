@@ -176,13 +176,12 @@ class Program(QWidget):
         qp = QPainter(self)
         qp.setRenderHint(QPainter.Antialiasing)
 
-        images = []
+        # images = []
+        #
+        # for e in range(11):
+        #     img = QPixmap("img/" + str(e) + ".png")
+        #     images.append(img)
 
-        for e in range(11):
-            img = QPixmap("img/" + str(e) + ".png")
-            images.append(img)
-
-        #images = [Null, img1, img10, img9, img8, img7, img6, img5, img4, img3, img2, img11]
 
         qp.begin(self)
         pen = QPen(QColor(colors[0]))
