@@ -18,7 +18,8 @@ class Program(QWidget):
         # self.setGeometry(800, 150, 350, 500)
         self.setFixedSize(350, 500)
         self.setWindowTitle("PyQt5_2048")
-        # self.setWindowOpacity(0.9)
+        self.setWindowIcon(QIcon('LOGO.png'))
+        #self.setWindowOpacity(0.8)
         self.show()
 
     def set_map(self, mx, my, value):
@@ -163,33 +164,48 @@ class Program(QWidget):
             self.clicked(3)
 
     def paintEvent(self, event):
-        qp = QPainter()
+        qp = QPainter(self)
         qp.setRenderHint(QPainter.Antialiasing)
 
+        images = []
+
+        for e in range(11):
+            img = QPixmap("img/" + str(e) + ".png")
+            images.append(img)
+
+        #images = [Null, img1, img10, img9, img8, img7, img6, img5, img4, img3, img2, img11]
+
         qp.begin(self)
-        pen = QPen(QColor(colors[0]))
+        pen = QPen(QColor(colors[1]))
         qp.setPen(pen)
         for ex in range(_size):
             for ey in range(_size):
                 qp.setFont(QFont('Decorative', self.font_size(len(str(_map[ex][ey])))))  # ~30
                 if self.game_over() == 0:
-                    qp.fillRect(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x,
-                                QBrush(QColor(colors[len(str(bin(_map[ex][ey]))) - 2])))
+                    # стандартная версия
+                    # qp.fillRect(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x,
+                    #              QBrush(QColor(colors[len(str(bin(_map[ex][ey]))) - 2])))
+
+                    # версия с изображениями
+                    qp.drawPixmap(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x, images[len(str(bin(_map[ex][ey]))) - 2])
                 else:
                     qp.fillRect(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x, QBrush(QColor(colors[12])))
 
-                qp.drawText(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x,
-                            Qt.AlignHCenter | Qt.AlignVCenter, str(_map[ex][ey]))
+                # qp.drawText(ex * x * 1.2 + x, ey * x * 1.2 + x, x, x,
+                #             Qt.AlignHCenter | Qt.AlignVCenter, str(_map[ex][ey]))
 
+        pen = QPen(QColor(colors[0]))
+        qp.setPen(pen)
         qp.setFont(QFont('Decorative', self.font_size(len(str(_bill[1])))))
         qp.drawText(121.9, 318, 106, 53, Qt.AlignHCenter | Qt.AlignVCenter, str(_bill[1]))
         if self.game_over():
             qp.setFont(QFont('Decorative', self.font_size(len("Game Over"))))
             qp.drawText(110, 5, 120, 53, Qt.AlignHCenter | Qt.AlignVCenter, "Game Over")
-            qp.fillRect(x, x, x*4.6, x*4.6, QBrush(QColor(0, 0, 0, 50)))
+            #qp.fillRect(x, x, x*4.6, x*4.6, QBrush(QColor(0, 0, 0, 50)))
         elif self.you_win():
             qp.drawText(120, 5, 120, 53, Qt.AlignHCenter | Qt.AlignVCenter, "You winner!")
         pen = QPen(QColor('#b0b5b5'))
+
         qp.setPen(pen)
         qp.setFont(QFont('Calibri', self.font_size(10)))
         qp.drawText(121.9, 345, 106, 53, Qt.AlignHCenter | Qt.AlignVCenter, str(_bill[0]))
@@ -222,12 +238,13 @@ class Program(QWidget):
                 break
 
 
-colors = ['#34486a', '#f6f4f5',
+colors = ['#34486a', '#00000',
           '#cad877', '#d7ddea', '#FEC77F', '#FFB3B1',
           '#c0eb7e', '#c2e4eb', '#ffea97', '#f9c0c9',
           '#778046', '#757980', '#c78b89']
-_size = 5
-x = _size * 9  # размер сетки и отступы 4-13 5-9
+
+_size = 4
+x = _size * 13  # размер сетки и отступы 4-13 5-9
 _map = [[0 for i in range(_size)] for ii in range(_size)]  # частная переменная map
 _bill = [0, 0]  # счёт рекордный и настоящий
 _rulls = "Press key '+' to start."
